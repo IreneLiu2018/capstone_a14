@@ -1,0 +1,4 @@
+{
+    "dockerhub-id": "mayanez/dsc180a_q1:latest",
+    "build-script": "python run.py"
+}

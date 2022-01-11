@@ -1,0 +1,14 @@
+{
+    "dataframe_path": "data/interim/dataframe.pkl",
+    "processed_data_path": "data/interim/all_docs.pkl",
+    "models_path": "data/processed/models.pkl",
+    "results_path": "data/processed/results.pkl",
+    "names_path": "data/processed/names.pkl",
+    "authors_path": "data/interim/authors.pkl",
+    "missing_author_years_path": "data/interim/missing_author_years.pkl",
+    "number_of_authors": 50,
+    "raw_data_path": "data/raw/final_hdsi_faculty_updated.csv",
+    "topics_range": [10,15,20,25,30],
+    "folder": "data",
+    "org_data": "final_hdsi_faculty_updated.csv"
+}

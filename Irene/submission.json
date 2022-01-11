@@ -1,0 +1,4 @@
+{
+    "dockerhub-id": "sjliuirene/new:tagname",
+    "build-script": "python run.py test"
+}

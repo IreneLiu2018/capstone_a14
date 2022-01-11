@@ -1,0 +1,4 @@
+{
+    "dockerhub-id": "xoxbrian/final:tagname",
+    "build-script": "python run.py"
+}

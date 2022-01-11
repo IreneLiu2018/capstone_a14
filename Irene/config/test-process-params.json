@@ -1,0 +1,7 @@
+{
+    "data_path": "test/raw/test_data_new.csv",
+    "output_path_df": "test/interim/dataframe.pkl",
+    "output_path_authors": "test/interim/authors.pkl",
+    "output_processed_data_path": "test/interim/all_docs.pkl",
+    "output_path_missing_author_years": "test/interim/missing_author_years.pkl"   
+}

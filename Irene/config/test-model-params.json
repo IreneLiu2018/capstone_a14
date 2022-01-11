@@ -1,0 +1,8 @@
+{
+    "all_docs_path": "test/interim/all_docs.pkl",
+    "num_topics": [10, 15, 20, 25, 30],
+    "output_names_path": "test/processed/names.pkl",
+    "output_models_path": "test/processed/models.pkl",
+    "output_results_path": "test/processed/results.pkl",
+    "output_countvec_path": "test/processed/countvec.pkl"
+}

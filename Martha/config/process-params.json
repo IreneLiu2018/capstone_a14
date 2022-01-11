@@ -1,0 +1,8 @@
+{
+    "data_path": "data/raw/final_hdsi_faculty_updated.csv",
+    "output_path_df": "data/interim/dataframe.pkl",
+    "output_path_authors": "data/interim/authors.pkl",
+    "output_processed_data_path": "data/interim/all_docs.pkl",
+    "output_path_missing_author_years": "data/interim/missing_author_years.pkl"
+    
+}
