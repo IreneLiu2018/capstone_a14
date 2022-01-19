@@ -98,7 +98,7 @@ def run_dashboard(folder, number_of_authors):
                 id='titles_and_authors', 
                 draggable=False, 
                 style={
-                  'font-size' :'150%',
+                  #'font-size' :'150%',
                   'font-family' : 'Verdana'
                 }
               ),
@@ -194,8 +194,18 @@ def run_dashboard(folder, number_of_authors):
     State('graph', 'figure')
   )
   def update_graph(value, topic, author, words, previous_fig):
+    random.seed(123)
+    
+    hex_colors = ['#66CDAA','#0000FF','#8A2BE2','#CD3333','#8EE5EE','#FF6103', '#66CD00',
+  '#FF7256', '#6495ED', '#DC143C', '#FFB90F', '#006400', '#B23AEE', '#E9967A', '#B4EEB4',
+  '#483D8B', '#00CED1', '#FF1493', '#8B0A50', '#00B2EE', '#8B1A1A', '#FFD700', '#00FF00',
+  '#FF69B4', '#8B3A3A', '#4B0082', '#FFF68F', '#BFEFFF', '#FFF0F5', '#EE9572', '#20B2AA', 
+  '#8470FF', '#32CD32', '#EEEED1', '#8B008B', '#B452CD', '#3CB371', '#E3A869', '#FFE4E1',
+  '#EE4000', '#FF82AB', '#33A1C9', '#FFBBFF', '#872657', '#FFC1C1', '#CD0000', '#436EEE',
+  '#8E388E', '#7171C6', '#FFFF00']
+    
     if len(previous_fig['data'][0]['node']['color']) != value + number_of_authors:
-      figs[threshold][value].update_traces(node = dict(color = ['#666699' for i in range(len(labels[value]))]), link = dict(color = ['rgba(204, 204, 204, .5)' for i in range(len(sources[threshold][value]))]))
+      figs[threshold][value].update_traces(node = dict(color = [hex_colors[i-(len(labels[value])-value)] if (i < len(labels[value]) and i >= len(labels[value])-value) else '#666699' for i in range(len(labels[value]))]), link = dict(color = ['rgba(204, 204, 204, .5)' for i in range(len(sources[threshold][value]))]))#figs[threshold][value].update_traces(node = dict(color = ['#666699' for i in range(len(labels[value]))]), link = dict(color = ['rgba(204, 204, 204, .5)' for i in range(len(sources[threshold][value]))]))
       return figs[threshold][value], [{'label' : f'Topic {topic}: {top_words[value][topic]}', 'value' : topic} for topic in range(value)]
 
     if len(words) != 0:
@@ -204,7 +214,7 @@ def run_dashboard(folder, number_of_authors):
         doc_vec[0][locations[word]] += 1
       relations = np.round(models[f'{value}'].transform(doc_vec), 3).tolist()[0]
       opacity = {(i+number_of_authors) : relation for i, relation in enumerate(relations) if relation > .1}
-      node_colors = ['#666699' if (i not in opacity.keys()) else f'rgba(255, 255, 0, {opacity[i]})' for i in range(len(labels[value]))]
+      node_colors = [hex_colors[i-(len(labels[value])-value)] if (i < len(labels[value]) and i >= len(labels[value])-value and i not in opacity.keys()) else f'rgba(255, 255, 0, {opacity[i]})' for i in range(len(labels[value]))]#node_colors = ['#666699' if (i not in opacity.keys()) else f'rgba(255, 255, 0, {opacity[i]})' for i in range(len(labels[value]))]
       valid_targets = [positions[value][f'Topic{i-number_of_authors}'] for i in opacity.keys()]
       link_colors = ['rgba(204, 204, 204, .5)' if target not in valid_targets else f'rgba(255, 255, 0, .5)' for target in targets[threshold][value]]
       figs[threshold][value].update_traces(node = dict(color = node_colors), link = dict(color = link_colors)),
@@ -212,23 +222,23 @@ def run_dashboard(folder, number_of_authors):
 
 
     if topic == None and author == None:
-      figs[threshold][value].update_traces(node = dict(color = ['#666699' for i in range(len(labels[value]))]), link = dict(color = ['rgba(204, 204, 204, .5)' for i in range(len(sources[threshold][value]))]))
+      figs[threshold][value].update_traces(node = dict(color = [hex_colors[i-(len(labels[value])-value)] if (i < len(labels[value]) and i >= len(labels[value])-value) else '#666699' for i in range(len(labels[value]))]), link = dict(color = ['rgba(204, 204, 204, .5)' for i in range(len(sources[threshold][value]))]))#figs[threshold][value].update_traces(node = dict(color = ['#666699' for i in range(len(labels[value]))]), link = dict(color = ['rgba(204, 204, 204, .5)' for i in range(len(sources[threshold][value]))]))
       return figs[threshold][value], [{'label' : f'Topic {topic}: {top_words[value][topic]}', 'value' : topic} for topic in range(value)]
     
     if topic != None and author == None:
-      node_colors = ['#666699' if (i != positions[value][f'Topic{topic}']) else '#ffff00' for i in range(len(labels[value]))]
+      node_colors = [hex_colors[i-(len(labels[value])-value)] if (i < len(labels[value]) and i >= len(labels[value])-value and i != positions[value][f'Topic{topic}']) else '#ffff00' for i in range(len(labels[value]))]#node_colors = ['#666699' if (i != positions[value][f'Topic{topic}']) else '#ffff00' for i in range(len(labels[value]))]
       link_colors = ['rgba(204, 204, 204, .5)' if target != positions[value][f'Topic{topic}'] else 'rgba(255, 255, 0, .5)' for target in targets[threshold][value]]
       figs[threshold][value].update_traces(node = dict(color = node_colors), link = dict(color = link_colors))
       return figs[threshold][value], [{'label' : f'Topic {topic}: {top_words[value][topic]}', 'value' : topic} for topic in range(value)]
 
     if topic == None and author != None:
-      node_colors = ['#666699' if (i != positions[value][author]) else '#ffff00' for i in range(len(labels[value]))]
+      node_colors = [hex_colors[i-(len(labels[value])-value)] if (i < len(labels[value]) and i >= len(labels[value])-value and i != positions[value][author]) else '#ffff00' for i in range(len(labels[value]))]#node_colors = ['#666699' if (i != positions[value][author]) else '#ffff00' for i in range(len(labels[value]))]
       link_colors = ['rgba(204, 204, 204, .5)' if source != positions[value][author] else 'rgba(255, 255, 0, .5)' for source in sources[threshold][value]]
       figs[threshold][value].update_traces(node = dict(color = node_colors), link = dict(color = link_colors))
       return figs[threshold][value], [{'label' : f'Topic {topic}: {top_words[value][topic]}', 'value' : topic} for topic in range(value)]
 
     if topic != None and author != None:
-      node_colors = ['#666699' if (i != positions[value][author] and i != positions[value][f'Topic{topic}']) else '#ffff00' for i in range(len(labels[value]))]
+      node_colors = [hex_colors[i-(len(labels[value])-value)] if (i < len(labels[value]) and i >= len(labels[value])-value and i != positions[value][author] and i != positions[value][f'Topic{topic}']) else '#ffff00' for i in range(len(labels[value]))]#node_colors = ['#666699' if (i != positions[value][author] and i != positions[value][f'Topic{topic}']) else '#ffff00' for i in range(len(labels[value]))]
       link_colors = ['rgba(204, 204, 204, .5)' if (source != positions[value][author] or target != positions[value][f'Topic{topic}']) else 'rgba(255, 255, 0, .5)' for source, target in zip(sources[threshold][value], targets[threshold][value])]
       figs[threshold][value].update_traces(node = dict(color = node_colors), link = dict(color = link_colors))
       return figs[threshold][value], [{'label' : f'Topic {topic}: {top_words[value][topic]}', 'value' : topic} for topic in range(value)]
