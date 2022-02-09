@@ -5,8 +5,12 @@ import os
 import pickle
 from sklearn.decomposition import LatentDirichletAllocation
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
+import preprocess
+import json
 np.random.seed(123)
 
+with open('data/output/year_info.json', 'r') as f:
+    MOST_RECENT, YEAR_THRESHOLD, NUM_YEARS_TO_INCLUDE = json.load(f).values()
 
 def train_lda_model(corpus_path, authors_path, missing_author_year_path, k):
 
@@ -74,7 +78,7 @@ def train_lda_model(corpus_path, authors_path, missing_author_year_path, k):
 
     year = []
     for a in missing_author_year:
-        year.append(list(set([2016, 2017, 2018, 2019, 2020, 2021]) - set(missing_author_year[a])))
+        year.append(list(set(np.arange(YEAR_THRESHOLD,MOST_RECENT+1)) - set(missing_author_year[a])))
     year = flatten(year)
     df_document_topic.iloc[:, k+2] = year
 

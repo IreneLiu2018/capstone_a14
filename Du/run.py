@@ -8,7 +8,7 @@ sys.path.insert(0, 'src/analysis')
 sys.path.insert(0, 'src/model')
 sys.path.insert(0, 'src/sankey_dash')
 
-from etl import get_data
+#from etl import get_data
 from preprocess import save_cleaned_corpus
 from lda import save_lda_model
 from prepare_dash import prepare_sankey

@@ -8,9 +8,10 @@ from nltk.stem import WordNetLemmatizer, SnowballStemmer
 from nltk.stem.porter import *
 import pickle
 import nltk
+import json
 nltk.download('wordnet')
 
-YEAR_THRESHOLD = 2015
+NUM_YEARS_TO_INCLUDE = 6
 
 def lemmatize_stemming(text):
     return WordNetLemmatizer().lemmatize(text, pos='v')
@@ -27,27 +28,25 @@ def preprocess_abstract(text):
 def get_cleaned_doc_author_info(data_path):
     data = pd.read_csv(data_path, index_col=0)
     data = data.fillna('')
-
+    
     
     stemmer = PorterStemmer()
 
     data['abstract_processed'] = data['abstract'].apply(preprocess_abstract)
     
     data['year'] = data['year'].astype(int)
-    data = data[data['year'] > YEAR_THRESHOLD]
+
+    MOST_RECENT = np.max(data['year'])
+    YEAR_THRESHOLD = MOST_RECENT - NUM_YEARS_TO_INCLUDE + 1
+    data = data[data['year'] >= YEAR_THRESHOLD]
+    
     
 
     # organzie author's abstracts by year
     authors = {}
     for author in data['HDSI_author'].unique():
-        authors[author] = {
-            2016 : list(),
-            2017 : list(),
-            2018 : list(),
-            2019 : list(),
-            2020 : list(),
-            2021 : list()
-        }
+        authors[author] = {year: [] for year in np.arange(YEAR_THRESHOLD, MOST_RECENT+1)}
+
     for i, row in data.iterrows():
         authors[row['HDSI_author']][row['year']].append(row['abstract_processed'])
 
@@ -59,6 +58,15 @@ def get_cleaned_doc_author_info(data_path):
                 missing_author_years[author].append(year)
                 continue
             all_docs.append(" ".join(documents))
+    
+    # save the year thresholds
+    year_info = {
+        'MOST_RECENT': int(MOST_RECENT),
+        'YEAR_THRESHOLD': int(YEAR_THRESHOLD),
+        'NUM_YEARS_TO_INCLUDE': int(NUM_YEARS_TO_INCLUDE)
+    }
+    with open('data/output/year_info.json', 'w') as f:
+        json.dump(year_info, f)
 
     return all_docs, authors, missing_author_years, data
 

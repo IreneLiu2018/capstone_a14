@@ -12,12 +12,14 @@ from dash.dependencies import Input, Output, State
 import pandas as pd
 import numpy as np
 
+with open('data/output/year_info.json', 'r') as f:
+    MOST_RECENT, YEAR_THRESHOLD, NUM_YEARS_TO_INCLUDE = json.load(f).values()
 
 def prepare_sankey(data_processed_path, data_raw_path, missing_author_years_path, corpus_path, authors_path, models_path, results_path, sankey_output_folder, num_topics_list = [5,10,15,20,30]):
     # run 5k models
-    #models, results = train_lda_5k_dash(corpus_path, authors_path, models_path, results_path, num_topics_list)
-    models = pickle.load(open(models_path, 'rb'))
-    results = pickle.load(open(results_path, 'rb'))
+    models, results = train_lda_5k_dash(corpus_path, authors_path, models_path, results_path, num_topics_list)
+    #models = pickle.load(open(models_path, 'rb'))
+    #results = pickle.load(open(results_path, 'rb'))
     data = pd.read_csv(data_processed_path)
     data = data.fillna('')
 
@@ -52,10 +54,10 @@ def prepare_sankey(data_processed_path, data_raw_path, missing_author_years_path
     author_list = []
     year_list = []
     for author in authors.keys():
-        for i in range(6):
-            if (2016 + i) not in missing_author_years[author]:
+        for i in range(NUM_YEARS_TO_INCLUDE):
+            if (YEAR_THRESHOLD + i) not in missing_author_years[author]:
                 author_list.append(author)
-                year_list.append(2016 + i)
+                year_list.append(YEAR_THRESHOLD+ i)
 
     for df in df_document_topic.values():
         df['author'] = author_list
@@ -68,7 +70,7 @@ def prepare_sankey(data_processed_path, data_raw_path, missing_author_years_path
     filtered = {
         threshold : {num_topics : averaged[num_topics].mask(averaged[num_topics] < threshold, other=0) for num_topics in averaged.keys()} for threshold in [.1]
     }
-
+    
     labels = {}
     for num_topics in num_topics_list:
         labels[num_topics] = filtered[.1][num_topics].index.to_list()
@@ -173,7 +175,7 @@ def prepare_sankey(data_processed_path, data_raw_path, missing_author_years_path
 
     heights = dict(zip(num_topics_list, [2000]*5))
     
-
+    
     figs = {threshold : {} for threshold in [.1]}
     for threshold in [.1]:
         for num_topics in num_topics_list:
@@ -202,7 +204,8 @@ def prepare_sankey(data_processed_path, data_raw_path, missing_author_years_path
     locations = {}
     for i, word in enumerate(names):
         locations[word] = i
-
+    
+    
     pickle.dump(figs, open(sankey_output_folder+'figs.pkl', 'wb'))
     pickle.dump(tops, open(sankey_output_folder+'tops.pkl', 'wb'))
     pickle.dump(author_list, open(sankey_output_folder+'author_list.pkl', 'wb'))

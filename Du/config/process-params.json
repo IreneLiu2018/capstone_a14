@@ -1,5 +1,5 @@
 {
-    "data_path": "data/raw/final_hdsi_faculty_updated.csv",
+    "data_path": "data/raw/final_hdsi_faculty.csv",
     "output_path_corpus": "data/output/all_docs_aggby_author_year.pickle",
     "output_path_authors": "data/output/all_authors.pickle",
     "output_path_missing_author_years": "data/output/missing_author_years.pickle",
