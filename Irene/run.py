@@ -11,7 +11,6 @@ sys.path.insert(0, 'src')
 
 # from model import model_build
 
-
 # change the data path in ipynb with the test data's info can make the project work well
 
 sys.path.insert(0, 'src/data')
