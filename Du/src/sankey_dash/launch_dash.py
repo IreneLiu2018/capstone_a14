@@ -24,6 +24,7 @@ def run_dash_board(sankey_path):
   locations = pickle.load(open(sankey_path+'locations.pkl', 'rb'))
   models = pickle.load(open(sankey_path+'models.pkl', 'rb'))
   names = pickle.load(open(sankey_path+'names.pkl', 'rb'))
+  num_authors = pickle.load(open(sankey_path+'num_authors.pkl', 'rb'))
 
   num_topics_list = json.load(open('config/sankey-params.json', 'r'))['num_topics_list']
 
@@ -197,7 +198,7 @@ def run_dash_board(sankey_path):
     State('graph', 'figure')
   )
   def update_graph(value, topic, author, words, previous_fig):
-    if len(previous_fig['data'][0]['node']['color']) != value + 50:
+    if len(previous_fig['data'][0]['node']['color']) != value + num_authors:
       figs[threshold][value].update_traces(node = dict(color = ['#666699' for i in range(len(labels[value]))]), link = dict(color = ['rgba(204, 204, 204, .5)' for i in range(len(sources[threshold][value]))]))
       return figs[threshold][value], [{'label' : f'Topic {topic}: {top_words[value][topic]}', 'value' : topic} for topic in range(value)]
 
@@ -206,9 +207,9 @@ def run_dash_board(sankey_path):
       for word in words:
         doc_vec[0][locations[word]] += 1
       relations = np.round(models[f'{value}'].transform(doc_vec), 3).tolist()[0]
-      opacity = {(i+50) : relation for i, relation in enumerate(relations) if relation > .1}
+      opacity = {(i+num_authors) : relation for i, relation in enumerate(relations) if relation > .1}
       node_colors = ['#666699' if (i not in opacity.keys()) else f'rgba(255, 255, 0, {opacity[i]})' for i in range(len(labels[value]))]
-      valid_targets = [positions[value][f'Topic{i-50}'] for i in opacity.keys()]
+      valid_targets = [positions[value][f'Topic{i-num_authors}'] for i in opacity.keys()]
       link_colors = ['rgba(204, 204, 204, .5)' if target not in valid_targets else f'rgba(255, 255, 0, .5)' for target in targets[threshold][value]]
       figs[threshold][value].update_traces(node = dict(color = node_colors), link = dict(color = link_colors)),
       return figs[threshold][value], [{'label' : f'Topic {topic}: {top_words[value][topic]}', 'value' : topic} for topic in range(value)]

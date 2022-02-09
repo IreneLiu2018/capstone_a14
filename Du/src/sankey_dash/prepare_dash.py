@@ -17,9 +17,9 @@ with open('data/output/year_info.json', 'r') as f:
 
 def prepare_sankey(data_processed_path, data_raw_path, missing_author_years_path, corpus_path, authors_path, models_path, results_path, sankey_output_folder, num_topics_list = [5,10,15,20,30]):
     # run 5k models
-    models, results = train_lda_5k_dash(corpus_path, authors_path, models_path, results_path, num_topics_list)
-    #models = pickle.load(open(models_path, 'rb'))
-    #results = pickle.load(open(results_path, 'rb'))
+    #models, results = train_lda_5k_dash(corpus_path, authors_path, models_path, results_path, num_topics_list)
+    models = pickle.load(open(models_path, 'rb'))
+    results = pickle.load(open(results_path, 'rb'))
     data = pd.read_csv(data_processed_path)
     data = data.fillna('')
 
@@ -81,6 +81,8 @@ def prepare_sankey(data_processed_path, data_raw_path, missing_author_years_path
     targets = {threshold : {} for threshold in [.1]}
     values = {threshold : {} for threshold in [.1]}
 
+    num_authors = len(np.unique(author_list))
+
     for threshold in [.1]:
         for num_topics in num_topics_list:
             curr_sources = []
@@ -91,12 +93,13 @@ def prepare_sankey(data_processed_path, data_raw_path, missing_author_years_path
                 for i, value in enumerate(row):
                     if value != 0:
                         curr_sources.append(index_counter)
-                        curr_targets.append(50 + i)
+                        curr_targets.append(num_authors + i)
                         curr_values.append(value)
                 index_counter += 1
             sources[threshold][num_topics] = curr_sources
             targets[threshold][num_topics] = curr_targets
             values[threshold][num_topics] = curr_values
+
 
     positions = {
         num_topics : {label : i for i, label in enumerate(labels[num_topics])} for num_topics in averaged.keys()
@@ -127,7 +130,7 @@ def prepare_sankey(data_processed_path, data_raw_path, missing_author_years_path
     link_labels = {}
     for num_topics in num_topics_list:
         link_labels[num_topics] = labels[num_topics].copy()
-        link_labels[num_topics][50:] = display_topics_list(models[f'{num_topics}'], names, 10)
+        link_labels[num_topics][num_authors:] = display_topics_list(models[f'{num_topics}'], names, 10)
 
     counts = CountVectorizer().fit_transform(data['abstract_processed'])
     transformed_list = []
@@ -217,7 +220,7 @@ def prepare_sankey(data_processed_path, data_raw_path, missing_author_years_path
     pickle.dump(locations, open(sankey_output_folder+'locations.pkl', 'wb'))
     pickle.dump(models, open(sankey_output_folder+'models.pkl', 'wb'))
     pickle.dump(names, open(sankey_output_folder+'names.pkl', 'wb'))
-
+    pickle.dump(num_authors, open(sankey_output_folder+'num_authors.pkl', 'wb'))
     combined = pd.read_csv(data_raw_path)
     pickle.dump(combined, open(sankey_output_folder+'combined.pkl', 'wb'))
 
