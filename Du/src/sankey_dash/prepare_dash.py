@@ -4,8 +4,8 @@ from src.model.lda import train_lda_5k_dash
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 import json
 import dash
-from dash import dcc
-from dash import html
+# from dash import dcc
+# from dash import html
 import dash_bootstrap_components as dbc
 import plotly.graph_objects as go
 from dash.dependencies import Input, Output, State

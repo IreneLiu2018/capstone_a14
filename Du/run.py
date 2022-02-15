@@ -23,6 +23,8 @@ def main(targets):
     `main` runs the targets in order of data=>analysis=>model.
     '''
 
+    print('IM HERE')
+
     if 'etl' in targets:
         with open('config/etl-params.json') as fh:
             etl_cfg = json.load(fh)
@@ -72,4 +74,5 @@ if __name__ == '__main__':
     # run via:
     # python main.py
     targets = sys.argv[1:]
+    print("TARGETS: " + str(targets))
     main(targets)
