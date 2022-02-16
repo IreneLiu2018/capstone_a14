@@ -2,6 +2,8 @@
     "python.analysis.extraPaths": [
         "./Irene/src/data",
         "./Irene/src/models",
-        "./Irene/src/sankey_dash"
+        "./Irene/src/sankey_dash",
+        "./Du/src/process_data",
+        "./Du/src/model"
     ]
 }
