@@ -9,7 +9,7 @@ sys.path.insert(0, 'src/model')
 sys.path.insert(0, 'src/sankey_dash')
 
 #from etl import get_data
-from preprocess import save_cleaned_corpus
+from preprocess import save_cleaned_corpus, save_article_level_labels
 from lda import save_lda_model
 from prepare_dash import prepare_sankey
 from launch_dash import run_dash_board
@@ -36,6 +36,7 @@ def main(targets):
             process_cfg = json.load(fh)
 
         save_cleaned_corpus(**process_cfg)
+        save_article_level_labels(process_cfg['data_path'])
 
     if 'model' in targets:
         with open('config/model-params.json') as fh:

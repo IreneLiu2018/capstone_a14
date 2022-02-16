@@ -70,6 +70,18 @@ def get_cleaned_doc_author_info(data_path):
 
     return all_docs, authors, missing_author_years, data
 
+def save_article_level_labels(data_path):
+    data = pd.read_csv(data_path, index_col=0)
+    data = data[data['category_for'].notnull()]
+
+    data.loc[:, 'category_for'] = data.category_for.apply(lambda x: eval(x)) # evaluate '[]' --> []
+    data.category_for = data.category_for.apply(lambda x: [i['name'] for i in x])
+    data.year = data.year.astype(int)
+    df_with_category = data.groupby(['HDSI_author', 'year'])[['category_for']].agg(lambda x: list(set(x.sum()))).reset_index()
+
+    df_with_category.to_csv('data/saved_results/topic_results/article_level_labels.csv')
+
+
 def save_cleaned_corpus(data_path, output_path_corpus, output_path_authors, output_path_missing_author_years, output_processed_data_path):
     corpus, authors, missing_author_years, processed_data = get_cleaned_doc_author_info(data_path)
     pickle.dump(corpus, open(output_path_corpus, 'wb'))

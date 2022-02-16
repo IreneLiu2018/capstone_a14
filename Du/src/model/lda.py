@@ -86,9 +86,23 @@ def train_lda_model(corpus_path, authors_path, missing_author_year_path, k):
 
     author_topic = time_author_topic.groupby('author').agg({'dominant_topic': lambda x:x.value_counts().index[0]})
 
-    return model_lda, df_document_topic, time_author_topic, author_topic
 
-def train_lda_5k_dash(corpus_path, authors_path, models_path, results_path, num_topics):
+    ### Create a author_topic table with labels
+    doc_labels = pd.read_csv('data/saved_results/topic_results/article_level_labels.csv')
+    doc_labels['category_for'] = doc_labels['category_for'].apply(eval)
+    topic_labels = merged = pd.merge(time_author_topic, doc_labels, left_on=['author', 'year'], right_on=['HDSI_author', 'year'], how='inner').drop(columns='HDSI_author')
+    category_topic = merged.groupby('dominant_topic').agg(lambda x: x.sum())[['category_for']]
+    
+    category_topic['category_for'] = (
+        # getting only the category with code length > 2 (more specific)
+        category_topic['category_for'].apply(lambda x: [cat[cat.find(' ')+1:] for cat in x if len(cat.split()[0])>2])
+        # getting the top 5 categories by frequency as labels
+                                    .apply(lambda x: pd.Series(x).value_counts().index.to_list()[:5])
+        )
+    category_topic = {k:[", ".join(l) for l in list(category_topic['category_for'])]} # save as json later
+    return model_lda, category_topic, time_author_topic, author_topic
+
+def train_lda_5k_dash(corpus_path, authors_path, models_path, results_path, labels_path, missing_author_year_path, num_topics):
 
     
     with open(corpus_path, 'rb') as fp:
@@ -104,6 +118,7 @@ def train_lda_5k_dash(corpus_path, authors_path, models_path, results_path, num_
 
     dict_models = {}
     dict_results = {}
+    dict_labels = {}
     for k in num_topics:
         # k topics model 
         lda = LatentDirichletAllocation(n_components=k, n_jobs=-1, random_state=123)
@@ -111,15 +126,20 @@ def train_lda_5k_dash(corpus_path, authors_path, models_path, results_path, num_
         dict_models[str(k)] = lda
         dict_results[str(k)] = model_lda
 
+        category_topic = train_lda_model(corpus_path, authors_path, missing_author_year_path, k)[1][k]
+        dict_labels[k] = category_topic
+
     pickle.dump(dict_models, open(models_path, 'wb'))
     pickle.dump(dict_results, open(results_path, 'wb'))
+    pickle.dump(dict_labels, open(labels_path, 'wb'))
 
-    return dict_models, dict_results
+    return dict_models, dict_results, dict_labels
 
-def save_lda_model(corpus_path, authors_path, k, model_output_path, dominant_topic_output, missing_author_year_path, time_author_topic_output, author_topic_output):
-    model_lda, df_document_topic, time_author_topic, author_topic = train_lda_model(corpus_path, authors_path, missing_author_year_path, k)
+def save_lda_model(corpus_path, authors_path, k, model_output_path, category_topic_path, missing_author_year_path, time_author_topic_output, author_topic_output):
+    model_lda, category_topic, time_author_topic, author_topic = train_lda_model(corpus_path, authors_path, missing_author_year_path, k)
     pickle.dump(model_lda, open(model_output_path, 'wb'))
-    df_document_topic.to_csv(dominant_topic_output)
+    with open(category_topic_path, 'w') as f:
+        json.dump(category_topic, f, indent=5)
     time_author_topic.to_csv(time_author_topic_output)
     author_topic.to_csv(author_topic_output)
     
