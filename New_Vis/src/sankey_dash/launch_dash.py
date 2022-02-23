@@ -104,6 +104,7 @@ def run_dash_board(sankey_path):
             id='dropdown_menu',
             placeholder='Select a topic',
             options=[{'label' : f'Topic {topic}: {top_words[10][topic]}', 'value' : topic} for topic in range(10)],
+            optionHeight=100,
             style={
               'color' : 'black',
               #'background-color' : 'white',
