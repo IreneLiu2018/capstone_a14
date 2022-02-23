@@ -15,17 +15,14 @@ import numpy as np
 with open('data/output/year_info.json', 'r') as f:
     MOST_RECENT, YEAR_THRESHOLD, NUM_YEARS_TO_INCLUDE = json.load(f).values()
 
-def prepare_sankey(data_processed_path, data_raw_path, missing_author_years_path, corpus_path, authors_path, models_path, results_path, sankey_output_folder, num_topics_list = [5,10,15,20,30]):
+def prepare_sankey(data_processed_path, data_raw_path, missing_author_years_path, corpus_path, authors_path, models_path, results_path, labels_path, sankey_output_folder, num_topics_list = [5,10,15,20,30]):
     # run 5k models
-    #models, results = train_lda_5k_dash(corpus_path, authors_path, models_path, results_path, num_topics_list)
+    models, results, topic_labels = train_lda_5k_dash(corpus_path, authors_path, models_path, results_path, labels_path, missing_author_years_path, num_topics_list)
     models = pickle.load(open(models_path, 'rb'))
     results = pickle.load(open(results_path, 'rb'))
+    topic_labels = pickle.load(open(labels_path, 'rb'))
     data = pd.read_csv(data_processed_path)
     data = data.fillna('')
-
-    # # read google scholar labels
-    # with open('./New_Vis/data/raw/gs_labels.json', 'r') as f:
-    #     gs_labels = json.load(f)
 
     all_docs = pickle.load(open(corpus_path, 'rb'))
     authors = pickle.load(open(authors_path, 'rb'))
@@ -134,8 +131,9 @@ def prepare_sankey(data_processed_path, data_raw_path, missing_author_years_path
     link_labels = {}
     for num_topics in num_topics_list:
         link_labels[num_topics] = labels[num_topics].copy()
-        link_labels[num_topics][num_authors:] = display_topics_list(models[f'{num_topics}'], names, 10)
+        link_labels[num_topics][num_authors:] = [a+' '+b for a,b in zip(display_topics_list(models[str(num_topics)], names, 10), topic_labels[num_topics])]
 
+    
     counts = CountVectorizer().fit_transform(data['abstract_processed'])
     transformed_list = []
     for model in models.values():
@@ -206,7 +204,17 @@ def prepare_sankey(data_processed_path, data_raw_path, missing_author_years_path
             fig.update_layout(title_text="Author Topic Connections", font=dict(size = 10, color = 'white'), height=heights[num_topics], paper_bgcolor="black", plot_bgcolor='black')
             figs[threshold][num_topics] = fig
 
-    top_words = dict(zip(num_topics_list, [display_topics_list(models[str(i)], names, 10) for i in num_topics_list]))
+    ### Add topic labels to the top_words
+
+    top_words = dict(zip
+        (num_topics_list, 
+            [
+                [
+                    a+' '+b for a,b in zip(display_topics_list(models[str(i)], names, 10), topic_labels[i])
+                ] for i in num_topics_list
+            ]
+        )
+    )
 
     locations = {}
     for i, word in enumerate(names):

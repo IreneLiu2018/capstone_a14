@@ -23,8 +23,6 @@ def main(targets):
     `main` runs the targets in order of data=>analysis=>model.
     '''
 
-    print('IM HERE')
-
     if 'etl' in targets:
         with open('config/etl-params.json') as fh:
             etl_cfg = json.load(fh)

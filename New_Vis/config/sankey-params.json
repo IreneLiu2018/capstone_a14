@@ -6,6 +6,7 @@
     "authors_path": "data/output/all_authors.pickle",
     "models_path": "data/saved_results/model/k_5_10_15_20_30_models.pickle",
     "results_path": "data/saved_results/model/k_5_10_15_20_30_results.pickle",
+    "labels_path": "data/output/topic_labels.pickle",
     "sankey_output_folder": "data/sankey_dash/",
     "num_topics_list": [5,10,15,20,30]
 }
