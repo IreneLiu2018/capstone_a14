@@ -38,7 +38,7 @@ def run_dash_board(sankey_path):
   app.layout = html.Div([
     dbc.Row([
         html.Div([
-            html.H1(children="Faculty Allocation Tool", className="header-title",
+            html.H1(children="HDSI Faculty Exploration Tool", className="header-title",
                 style={
                   'color' :'#666699',
                   'margin': '4px auto',
